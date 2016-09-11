@@ -17,10 +17,10 @@
   :components ((:module "src"
                 :components
                 ((:file "sheets"))))
-  :description ""
+  :description "kyutech c-2b/c-2g sheet info. who sheets where?"
   :long-description
   #.(with-open-file (stream (merge-pathnames
-                             #p"README.markdown"
+                             #p"README.md"
                              (or *load-pathname* *compile-file-pathname*))
                             :if-does-not-exist nil
                             :direction :input)
