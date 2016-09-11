@@ -29,9 +29,9 @@
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-
+;; (use :hunchentoot) しない時、start は hunchentoot:start とフルパスで。
 (defun start-server (&optional (port 8080))
-  (hunchentoot:start (make-instance 'easy-acceptor :port port)))
+  (start (make-instance 'easy-acceptor :port port)))
 
 (define-easy-handler (hello :uri "/hello") ()
   (standard-page
@@ -40,3 +40,24 @@
     (:p (:a :href "http://www.melt.kyutech.ac.jp" "go melt")
         " or "
         (:a :href "/" "hunchentoot"))))
+
+(define-easy-handler (form :uri "/form") ()
+  (standard-page
+      (:title "Sheet:form")
+    (:h3 "Select Class 3")
+    (:form :method "post" :action "check" :id "inputform"
+     (:table
+      (:tr (:td "year") (:td (:input :name "year" :placeholder "2016")))
+      (:tr (:td "term") (:td (:input :name "term")))
+      (:tr (:td "wday") (:td (:input :name "wday")))
+      (:tr (:td "hour") (:td (:input :name "hour")))
+      (:tr (:td "room") (:td (:input :name "room"))))
+     (:input :type "submit"))))
+
+;;; check は mongodb へのクエリーにすべきか？
+(define-easy-handler (check :uri "/check") (year term wday hour room)
+  (standard-page
+      (:title "Sheet:check")
+    (:h3 "Sheets 2")
+    (:p (format t "~a ~a ~a ~a ~a" year term wday hour room))
+    (:p (:a :href "/form" "back"))))
