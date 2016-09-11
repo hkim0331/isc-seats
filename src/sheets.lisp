@@ -19,7 +19,7 @@
               :content "width=device-width, initial-scale=1.0")
        (:title ,title)
        (:link :rel "stylesheet"
-              :href "//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
+              :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
        (:link :type "text/css" :rel "stylesheet" :href "/sheets.css"))
       (:body
        (:div :class "container"
@@ -27,8 +27,16 @@
         (:hr)
         (:span ,(format nil "programmed by hkimura, release ~a" *version*))
         (:script :src "https://code.jquery.com/jquery.js")
-        (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"))))))
+        (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
 
 (defun start-server (&optional (port 8080))
   (hunchentoot:start (make-instance 'easy-acceptor :port port)))
+
+(define-easy-handler (hello :uri "/hello") ()
+  (standard-page
+      (:title "hello")
+    (:h1 "Hello, World!")
+    (:p (:a :href "http://www.melt.kyutech.ac.jp" "go melt")
+        " or "
+        (:a :href "/" "hunchentoot"))))
