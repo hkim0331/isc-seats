@@ -3,6 +3,7 @@
   (:use :cl :cl-who :cl-mongo :hunchentoot))
 (in-package :sheets)
 
+;;FIXME
 (defvar *version* "0.1")
 
 (setf (html-mode) :html5)
@@ -25,12 +26,11 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span ,(format nil "programmed by hkimura, release ~a"
-                        "0.1"))
+        (:span ,(format nil "programmed by hkimura, release ~a" "0.1"))
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-;; (use :hunchentoot) しない時、start は hunchentoot:start とフルパスで。
+;; (use :hunchentoot) しない時、start はフルパスで hunchentoot:start のように。
 (defun start-server (&optional (port 8080))
   (start (make-instance 'easy-acceptor :port port)))
 
@@ -58,15 +58,26 @@
 
 ;;; check は mongodb へのクエリーにすべきか？
 (define-easy-handler (check :uri "/check") (year term wday hour room)
-  (standard-page
-      (:title "Sheet:check")
-    (:h3 "Sheets 2")
-    (:p (format t "~a ~a ~a ~a ~a" year term wday hour room))
-    (:p (:a :href "/form" "back"))))
+  (let ((ans (find-sheets :col (format nil "~a_~a" term year)
+                          :room room
+                          :uhour (format nil "~a~a" wday hour))))
+    (standard-page
+        (:title "Sheet:check")
+      (:h3 "Sheets 3")
+      (:p ans.first)
+      (:p (:a :href "/form" "back")))))
 
+;; (sid ip) のリストを返して欲しい。
+;; (defun find-sheets (&key col room uhour)
+;;   (let ((prefix (cond
+;;                   ((string= room "c-2b") "10.28.100")
+;;                   ((string= room "c-2g") "10.28.102"))))
+;;     (remove-if-not
+;;      ) (db.find col ($ ($ "uhour" uhour)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; mongodb interface
-;; prep dummy data
+;; prep dummy data.
 ;; tg001-tg100: 10.28.102.1-100
 ;; tg000:       10.28.102.200
 ;; tb001-tb082: 10.28.100.1-82
@@ -80,13 +91,15 @@
                  (R (- n 1) (cons n ret)))))
     (R n nil)))
 
+;; (db.insert collection doc)
 (defun make-dummy-one (year term sid uhour date ip)
-  (db.insert
+  (cl-mongo:db.insert
    (format nil "~a_~a" term year)
    ($ ($ "sid" sid)
       ($ "uhour" uhour)
       ($ "icome" (format nil "[[ '~a' , '~a']]" date ip)))))
 
+;;FIXME: make-dummy-one を2箇所で呼ぶのはださくね？
 (defun make-dummy ()
   (dolist (year '(2016 2017))
     (dolist (term '("q3" "q4"))
@@ -111,11 +124,7 @@
                      date
                      (format nil "10.28.102.~a" ip)))))))))))
 
-
-
-
-
-
-
+;;(make-dummy)
+;;(db.find "q3_2016")
 
 
