@@ -3,6 +3,7 @@
   (:use :cl :cl-who :cl-mongo :hunchentoot))
 (in-package :sheets)
 
+;;FIXME
 (defvar *version* "0.1")
 
 (setf (html-mode) :html5)
@@ -25,8 +26,7 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span ,(format nil "programmed by hkimura, release ~a"
-                        "0.1"))
+        (:span ,(format nil "programmed by hkimura, release ~a" "0.1"))
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
@@ -60,18 +60,25 @@
 
 ;;; check は mongodb へのクエリーにすべきか？
 (define-easy-handler (check :uri "/check") (year term wday hour room)
-  (let ((ans (find (format nil "~a_~a" term year)
-                   :room room
-                   :uhour (format nil "~a~a" wday hour))))
+  (let ((ans (find-sheets :col (format nil "~a_~a" term year)
+                          :room room
+                          :uhour (format nil "~a~a" wday hour))))
     (standard-page
         (:title "Sheet:check")
       (:h3 "Sheets 3")
       (:p ans.first)
-      (:p (:a :href "/form" "back"))))
+      (:p (:a :href "/form" "back")))))
 
-  )
+;; (sid ip) のリストを返して欲しい。
+;; (defun find-sheets (&key col room uhour)
+;;   (let ((prefix (cond
+;;                   ((string= room "c-2b") "10.28.100")
+;;                   ((string= room "c-2g") "10.28.102"))))
+;;     (remove-if-not
+;;      ) (db.find col ($ ($ "uhour" uhour)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; mongodb interface
-
 ;; prep dummy data.
 ;; tg001-tg100: 10.28.102.1-100
 ;; tg000:       10.28.102.200
@@ -88,7 +95,7 @@
 
 ;; (db.insert collection doc)
 (defun make-dummy-one (year term sid uhour date ip)
-  (db.insert
+  (cl-mongo:db.insert
    (format nil "~a_~a" term year)
    ($ ($ "sid" sid)
       ($ "uhour" uhour)
@@ -111,10 +118,13 @@
                      (format nil "~a~a" wday hour)
                      date
                      (format nil "10.28.100.~a" ip))
-                    (make-dummy-one
-                     year
-                     term
-                     (random 100)
-                     (format nil "~a~a" wday hour)
-                     date
-                     (format nil "10.28.102.~a" ip)))))))))))
+                  (make-dummy-one
+                   year
+                   term
+                   (random 100)
+                   (format nil "~a~a" wday hour)
+                   date
+                   (format nil "10.28.102.~a" ip)))))))))))
+
+;;(make-dummy)
+;;(db.find "q3_2016")
