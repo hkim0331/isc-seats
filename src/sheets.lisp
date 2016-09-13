@@ -49,8 +49,8 @@
 (define-easy-handler (form :uri "/form") ()
   (standard-page
       (:title "Sheet:form")
-    (:h3 "Select Class 3")
-    (:form :method "post" :action "check" :id "inputform"
+    (:h3 "Select Class")
+    (:form :method "post" :action "/check"
      (:table
       (:tr (:td "year") (:td (:input :name "year" :placeholder "2016")))
       (:tr (:td "term") (:td (:input :name "term")))
@@ -59,6 +59,18 @@
       (:tr (:td "room") (:td (:input :name "room")))
       (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
+
+(define-easy-handler (check0 :uri "/check0") (year term wday hour room date)
+  (standard-page
+      (:title "Sheet:check")
+    (:h3 "Sheets 0")
+      (:p "year:" (str year))
+      (:p "term:" (str term))
+      (:p "wday:" (str (string= wday "Fri")))
+      (:p "hour:" hour)
+      (:p "room:" room)
+      (:p "date:" date)
+      (:p (:a :href "/form" "back"))))
 
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
@@ -77,9 +89,11 @@
          (ans (remove-if-not #'(lambda (x) (scan pat (second x))) ans0)))
     (standard-page
         (:title "Sheet:check")
-      (:h3 "Sheets 3")
-      (:p (first ans))
+      (:h3 "Sheets")
+      (:p "ans :" (format t "~a" ans))
       (:p (:a :href "/form" "back")))))
+
+
 
 ;; ((sid ip) ...) のリストを返したい。
 ;; このリストは上位関数で部屋番号 room でフィルタされる。
