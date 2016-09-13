@@ -1,6 +1,6 @@
 (in-package :cl-user)
 (defpackage sheets
-  (:use :cl :cl-json :cl-who :cl-mongo :hunchentoot))
+  (:use :cl :cl-who :cl-mongo :hunchentoot))
 (in-package :sheets)
 
 ;;FIXME

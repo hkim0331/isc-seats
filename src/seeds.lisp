@@ -12,7 +12,8 @@
    (format nil "~a_~a" term year)
    ($ ($ "sid" sid)
       ($ "uhour" uhour)
-      ($ "icome" (format nil "[[ '~a' , '~a']]" date ip)))))
+      ;; fix bug. not string, but list!
+      ($ "icome" (list (list date ip))))))
 
 ;;FIXME: make-dummy-one を2箇所で呼ぶのはださくね？
 (defun make-dummy ()
@@ -38,6 +39,6 @@
                    (format nil "~a~a" wday hour)
                    date
                    (format nil "10.28.102.~a" ip)))))))))))
-
 ;;(make-dummy)
+
 
