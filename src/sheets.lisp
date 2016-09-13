@@ -3,8 +3,7 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :sheets)
 
-;;FIXME
-(defvar *version* "0.1")
+(defvar *version* "0.3")
 
 (cl-mongo:db.use "ucome")
 
@@ -28,7 +27,7 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span ,(format nil "programmed by hkimura, release ~a" "0.1"))
+        (:span "programmed by hkimura, release 0.3.")
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 

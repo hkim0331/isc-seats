@@ -8,7 +8,7 @@
 (in-package :sheets-asd)
 
 (defsystem sheets
-  :version "0.1"
+  :version "0.3"
   :author "hiroshi.kimura.0331@gmail.com"
   :license "free"
   :depends-on (:cl-mongo
