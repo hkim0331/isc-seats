@@ -70,12 +70,12 @@
 
 (cl-mongo:db.use "ucome")
 
-;; (sid ip) のリストを返して欲しい。
-(defun sheets (&key col room uhour)
-  (let ((prefix (cond
-                  ((string= room "c-2b") "10.28.100")
-                  ((string= room "c-2g") "10.29.102"))))
-    ))
+;; ((sid ip) ...) のリストを返したい。
+;; room を使えていない。
+(defun sheets (&key col room uhour date)
+  (mapcar
+   (lambda (x) (list (get-element "sid" x) (get-element "ip" x)))
+   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
 
 ;; (defun find-sheets (&key col room uhour)
 ;;   (let ((prefix (cond
