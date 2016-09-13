@@ -12,6 +12,7 @@
   :author "hiroshi.kimura.0331@gmail.com"
   :license "free"
   :depends-on (:cl-mongo
+               :cl-ppcre
                :cl-who
                :hunchentoot)
   :components ((:module "src"

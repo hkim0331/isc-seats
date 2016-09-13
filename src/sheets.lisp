@@ -1,10 +1,12 @@
 (in-package :cl-user)
 (defpackage sheets
-  (:use :cl :cl-who :cl-mongo :hunchentoot))
+  (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :sheets)
 
 ;;FIXME
 (defvar *version* "0.1")
+
+(cl-mongo:db.use "ucome")
 
 (setf (html-mode) :html5)
 
@@ -43,52 +45,61 @@
         (:a :href "/" "hunchentoot"))))
 
 
-;;; あとでポリッシュアップ。
+;;; FIXME: polish up the code.
 (define-easy-handler (form :uri "/form") ()
   (standard-page
       (:title "Sheet:form")
-    (:h3 "Select Class 3")
-    (:form :method "post" :action "check" :id "inputform"
+    (:h3 "Select Class")
+    (:form :method "post" :action "/check"
      (:table
       (:tr (:td "year") (:td (:input :name "year" :placeholder "2016")))
       (:tr (:td "term") (:td (:input :name "term")))
       (:tr (:td "wday") (:td (:input :name "wday")))
       (:tr (:td "hour") (:td (:input :name "hour")))
-      (:tr (:td "room") (:td (:input :name "room"))))
+      (:tr (:td "room") (:td (:input :name "room")))
+      (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
 
-;;; check は mongodb へのクエリーにすべきか？
-(define-easy-handler (check :uri "/check") (year term wday hour room)
-  (let ((ans (sheets :col (format nil "~a_~a" term year)
-                          :room room
-                          :uhour (format nil "~a~a" wday hour))))
-    (standard-page
-        (:title "Sheet:check")
-      (:h3 "Sheets 3")
-      (:p ans.first)
-      (:p (:a :href "/form" "back")))))
+(define-easy-handler (check0 :uri "/check0") (year term wday hour room date)
+  (standard-page
+      (:title "Sheet:check")
+    (:h3 "Sheets 0")
+      (:p "year:" (str year))
+      (:p "term:" (str term))
+      (:p "wday:" (str (string= wday "Fri")))
+      (:p "hour:" hour)
+      (:p "room:" room)
+      (:p "date:" date)
+      (:p (:a :href "/form" "back"))))
 
-(cl-mongo:db.use "ucome")
-
-;; (sid ip) のリストを返して欲しい。
-(defun sheets (&key col room uhour)
-  (let ((prefix (cond
-                  ((string= room "c-2b") "10.28.100")
-                  ((string= room "c-2g") "10.29.102"))))
-    ))
-
-;; (defun find-sheets (&key col room uhour)
-;;   (let ((prefix (cond
-;;                   ((string= room "c-2b") "10.28.100")
-;;                   ((string= room "c-2g") "10.28.102"))))
-;;     (remove-if-not
-;;      ) (db.find col ($ ($ "uhour" uhour)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; mongodb interface
-;; prep dummy data.
-;; tg001-tg100: 10.28.102.1-100
-;; tg000:       10.28.102.200
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
+;; tg001-tg100: 10.28.102.1-100
+;; tg000:       10.28.102.200
+
+;;; check は mongodb へのクエリーにすべきか？
+(define-easy-handler (check :uri "/check") (year term wday hour room date)
+  (let* ((ans0 (sheets (format nil "~a_~a" term year)
+                     :uhour (format nil "~a~a" wday hour)
+                     :date date))
+         (pat (cond
+                ((string= room "c-2b") "10.28.100")
+                ((string= room "c-2g") "10.28.102")
+                (t (error (format nil "unknown class room: ~a" room)))))
+         (ans (remove-if-not #'(lambda (x) (scan pat (second x))) ans0)))
+    (standard-page
+        (:title "Sheet:check")
+      (:h3 "Sheets")
+      (:p "ans :" (format t "~a" ans))
+      (:p (:a :href "/form" "back")))))
+
+
+
+;; ((sid ip) ...) のリストを返したい。
+;; このリストは上位関数で部屋番号 room でフィルタされる。
+(defun sheets (col &key uhour date)
+  (mapcar
+   #'(lambda (x) (list (get-element "sid" x) (get-element "ip" x)))
+   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
+
 

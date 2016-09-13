@@ -12,8 +12,8 @@
    (format nil "~a_~a" term year)
    ($ ($ "sid" sid)
       ($ "uhour" uhour)
-      ;; fix bug. not string, but list!
-      ($ "icome" (list (list date ip))))))
+      ($ "date" date)
+      ($  "ip" ip))))
 
 ;;FIXME: make-dummy-one を2箇所で呼ぶのはださくね？
 (defun make-dummy ()
@@ -28,7 +28,7 @@
                     (make-dummy-one
                      year
                      term
-                     (random 100)
+                     "hkim"
                      (format nil "~a~a" wday hour)
                      date
                      (format nil "10.28.100.~a" ip))
@@ -39,6 +39,7 @@
                    (format nil "~a~a" wday hour)
                    date
                    (format nil "10.28.102.~a" ip)))))))))))
+
 ;;(make-dummy)
 
 
