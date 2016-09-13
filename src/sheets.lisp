@@ -1,6 +1,6 @@
 (in-package :cl-user)
 (defpackage sheets
-  (:use :cl :cl-who :cl-mongo :hunchentoot))
+  (:use :cl :cl-json :cl-who :cl-mongo :hunchentoot))
 (in-package :sheets)
 
 ;;FIXME
@@ -57,10 +57,9 @@
       (:tr (:td "room") (:td (:input :name "room"))))
      (:input :type "submit"))))
 
-
 ;;; check は mongodb へのクエリーにすべきか？
 (define-easy-handler (check :uri "/check") (year term wday hour room)
-  (let ((ans (find-sheets :col (format nil "~a_~a" term year)
+  (let ((ans (sheets :col (format nil "~a_~a" term year)
                           :room room
                           :uhour (format nil "~a~a" wday hour))))
     (standard-page
@@ -69,7 +68,15 @@
       (:p ans.first)
       (:p (:a :href "/form" "back")))))
 
+(cl-mongo:db.use "ucome")
+
 ;; (sid ip) のリストを返して欲しい。
+(defun sheets (&key col room uhour)
+  (let ((prefix (cond
+                  ((string= room "c-2b") "10.28.100")
+                  ((string= room "c-2g") "10.29.102"))))
+    ))
+
 ;; (defun find-sheets (&key col room uhour)
 ;;   (let ((prefix (cond
 ;;                   ((string= room "c-2b") "10.28.100")
@@ -85,46 +92,3 @@
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
 
-(cl-mongo:db.use "ucome")
-
-(defun range (n)
-  (labels ((R (n ret)
-             (if (< n 0) ret
-                 (R (- n 1) (cons n ret)))))
-    (R n nil)))
-
-;; (db.insert collection doc)
-(defun make-dummy-one (year term sid uhour date ip)
-  (cl-mongo:db.insert
-   (format nil "~a_~a" term year)
-   ($ ($ "sid" sid)
-      ($ "uhour" uhour)
-      ($ "icome" (format nil "[[ '~a' , '~a']]" date ip)))))
-
-;;FIXME: make-dummy-one を2箇所で呼ぶのはださくね？
-(defun make-dummy ()
-  (dolist (year '(2016 2017))
-    (dolist (term '("q3" "q4"))
-      (dolist (wday '("Mon" "Tue" "Wed" "Thr" "Fri"))
-        (dolist (hour '(1 2 3 4 5))
-          (dolist (date '("2016-09-11" "2016-10-26" "1962-04-20"))
-            (dolist (ip (range 80))
-              (when (< (random 10) 2)
-                (if (< (random 10) 5)
-                    (make-dummy-one
-                     year
-                     term
-                     (random 100)
-                     (format nil "~a~a" wday hour)
-                     date
-                     (format nil "10.28.100.~a" ip))
-                  (make-dummy-one
-                   year
-                   term
-                   (random 100)
-                   (format nil "~a~a" wday hour)
-                   date
-                   (format nil "10.28.102.~a" ip)))))))))))
-
-;;(make-dummy)
-;;(db.find "q3_2016")
