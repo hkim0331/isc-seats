@@ -1,9 +1,11 @@
 (in-package :cl-user)
 (defpackage sheets
-  (:use :cl :cl-who :cl-mongo :hunchentoot))
+  (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :sheets)
 
-(defvar *version* "0.1")
+(defvar *version* "0.3")
+
+(cl-mongo:db.use "ucome")
 
 (setf (html-mode) :html5)
 
@@ -25,12 +27,11 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span ,(format nil "programmed by hkimura, release ~a"
-                        "0.1"))
+        (:span "programmed by hkimura, release 0.3.")
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-;; (use :hunchentoot) しない時、start は hunchentoot:start とフルパスで。
+;; (use :hunchentoot) しない時、start はフルパスで hunchentoot:start のように。
 (defun start-server (&optional (port 8080))
   (start (make-instance 'easy-acceptor :port port)))
 
@@ -42,80 +43,62 @@
         " or "
         (:a :href "/" "hunchentoot"))))
 
-;;; あとでポリッシュアップ。
+
+;;; FIXME: polish up the code.
 (define-easy-handler (form :uri "/form") ()
   (standard-page
       (:title "Sheet:form")
-    (:h3 "Select Class 3")
-    (:form :method "post" :action "check" :id "inputform"
+    (:h3 "Select Class")
+    (:form :method "post" :action "/check"
      (:table
       (:tr (:td "year") (:td (:input :name "year" :placeholder "2016")))
       (:tr (:td "term") (:td (:input :name "term")))
       (:tr (:td "wday") (:td (:input :name "wday")))
       (:tr (:td "hour") (:td (:input :name "hour")))
-      (:tr (:td "room") (:td (:input :name "room"))))
+      (:tr (:td "room") (:td (:input :name "room")))
+      (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
 
-;;; check は mongodb へのクエリーにすべきか？
-(define-easy-handler (check :uri "/check") (year term wday hour room)
+(define-easy-handler (check0 :uri "/check0") (year term wday hour room date)
   (standard-page
       (:title "Sheet:check")
-    (:h3 "Sheets 2")
-    (:p (format t "~a ~a ~a ~a ~a" year term wday hour room))
-    (:p (:a :href "/form" "back"))))
+    (:h3 "Sheets 0")
+      (:p "year:" (str year))
+      (:p "term:" (str term))
+      (:p "wday:" (str (string= wday "Fri")))
+      (:p "hour:" hour)
+      (:p "room:" room)
+      (:p "date:" date)
+      (:p (:a :href "/form" "back"))))
 
-
-;;; mongodb interface
-;; prep dummy data
-;; tg001-tg100: 10.28.102.1-100
-;; tg000:       10.28.102.200
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
+;; tg001-tg100: 10.28.102.1-100
+;; tg000:       10.28.102.200
 
-(cl-mongo:db.use "ucome")
-
-(defun range (n)
-  (labels ((R (n ret)
-             (if (< n 0) ret
-                 (R (- n 1) (cons n ret)))))
-    (R n nil)))
-
-(defun make-dummy-one (year term sid uhour date ip)
-  (db.insert
-   (format nil "~a_~a" term year)
-   ($ ($ "sid" sid)
-      ($ "uhour" uhour)
-      ($ "icome" (format nil "[[ '~a' , '~a']]" date ip)))))
-
-(defun make-dummy ()
-  (dolist (year '(2016 2017))
-    (dolist (term '("q3" "q4"))
-      (dolist (wday '("Mon" "Tue" "Wed" "Thr" "Fri"))
-        (dolist (hour '(1 2 3 4 5))
-          (dolist (date '("2016-09-11" "2016-10-26" "1962-04-20"))
-            (dolist (ip (range 80))
-              (when (< (random 10) 2)
-                (if (< (random 10) 5)
-                    (make-dummy-one
-                     year
-                     term
-                     (random 100)
-                     (format nil "~a~a" wday hour)
-                     date
-                     (format nil "10.28.100.~a" ip))
-                    (make-dummy-one
-                     year
-                     term
-                     (random 100)
-                     (format nil "~a~a" wday hour)
-                     date
-                     (format nil "10.28.102.~a" ip)))))))))))
+;;; check は mongodb へのクエリーにすべきか？
+(define-easy-handler (check :uri "/check") (year term wday hour room date)
+  (let* ((ans0 (sheets (format nil "~a_~a" term year)
+                     :uhour (format nil "~a~a" wday hour)
+                     :date date))
+         (pat (cond
+                ((string= room "c-2b") "10.28.100")
+                ((string= room "c-2g") "10.28.102")
+                (t (error (format nil "unknown class room: ~a" room)))))
+         (ans (remove-if-not #'(lambda (x) (scan pat (second x))) ans0)))
+    (standard-page
+        (:title "Sheet:check")
+      (:h3 "Sheets")
+      (:p "ans :" (format t "~a" ans))
+      (:p (:a :href "/form" "back")))))
 
 
 
-
-
-
-
+;; ((sid ip) ...) のリストを返したい。
+;; このリストは上位関数で部屋番号 room でフィルタされる。
+(defun sheets (col &key uhour date)
+  (mapcar
+   #'(lambda (x) (list (get-element "sid" x) (get-element "ip" x)))
+   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
 
 
