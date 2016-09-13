@@ -9,6 +9,15 @@ ssh しまくってログインしているユーザ、端末をかき集める�
 
 4年生青木に開発のようすを見せる目的もかねて、sheets する。
 
+## BUG
+
+二つの OS X El Capitan があり、ccl64 で開発を実施しているが、
+iMac(21.5-inch, Mid2011) では cl-mongo でエラーになる。
+ccl64 をやめ、sbcl に切り替えると動作するようになる。
+
+* cl-mongo-20131003-git
+* usocket-0.6.4
+
 ## Usage
 
 ## Installation
