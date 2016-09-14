@@ -66,7 +66,8 @@
     (standard-page
         (:title "Sheet:check")
       (:h3 "Seats")
-      (:p "ans :" (format t "~a" ans))
+      (:p (format t "ans0: ~a" ans0))
+      (:p (format t "ans: ~a" ans))
       (:p (:a :href "/form" "back")))))
 
 
@@ -74,9 +75,8 @@
 ;; ((sid ip) ...) のリストを返したい。
 ;; このリストは上位関数で部屋番号 room でフィルタされる。
 ;; CHANGED: 0.3.1 ((ip sid) ...)
+;; ENBUG! 2016-09-15, (db.use "ucome") していなかった。
 (defun seats (col &key uhour date)
   (mapcar
    #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
    (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
-
-
