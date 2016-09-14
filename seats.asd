@@ -1,13 +1,13 @@
 #|
-  This file is a part of sheets project.
+  This file is a part of seats project.
 |#
 
 (in-package :cl-user)
-(defpackage sheets-asd
+(defpackage seats-asd
   (:use :cl :asdf))
-(in-package :sheets-asd)
+(in-package :seats-asd)
 
-(defsystem sheets
+(defsystem seats
   :version "0.3"
   :author "hiroshi.kimura.0331@gmail.com"
   :license "free"
@@ -17,9 +17,9 @@
                :hunchentoot)
   :components ((:module "src"
                 :components
-                ((:file "sheets")
+                ((:file "seats")
                  (:file "seeds"))))
-  :description "kyutech c-2b/c-2g sheet info. who sheets where?"
+  :description "kyutech c-2b/c-2g seats info. who seats where?"
   :long-description
   #.(with-open-file (stream (merge-pathnames
                              #p"README.md"
@@ -32,4 +32,4 @@
                                :fill-pointer t)))
           (setf (fill-pointer seq) (read-sequence seq stream))
           seq)))
-  :in-order-to ((test-op (test-op sheets-test))))
+  :in-order-to ((test-op (test-op seats-test))))

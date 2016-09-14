@@ -1,9 +1,7 @@
 (in-package :cl-user)
-(defpackage sheets
+(defpackage seats
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
-(in-package :sheets)
-
-(defvar *version* "0.3")
+(in-package :seats)
 
 (cl-mongo:db.use "ucome")
 
@@ -35,19 +33,10 @@
 (defun start-server (&optional (port 8080))
   (start (make-instance 'easy-acceptor :port port)))
 
-(define-easy-handler (hello :uri "/hello") ()
-  (standard-page
-      (:title "hello")
-    (:h1 "Hello, World!")
-    (:p (:a :href "http://www.melt.kyutech.ac.jp" "go melt")
-        " or "
-        (:a :href "/" "hunchentoot"))))
-
-
 ;;; FIXME: polish up the code.
 (define-easy-handler (form :uri "/form") ()
   (standard-page
-      (:title "Sheet:form")
+      (:title "Seat:form")
     (:h3 "Select Class")
     (:form :method "post" :action "/check"
      (:table
@@ -59,36 +48,24 @@
       (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
 
-(define-easy-handler (check0 :uri "/check0") (year term wday hour room date)
-  (standard-page
-      (:title "Sheet:check")
-    (:h3 "Sheets 0")
-      (:p "year:" (str year))
-      (:p "term:" (str term))
-      (:p "wday:" (str (string= wday "Fri")))
-      (:p "hour:" hour)
-      (:p "room:" room)
-      (:p "date:" date)
-      (:p (:a :href "/form" "back"))))
 
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
 ;; tg001-tg100: 10.28.102.1-100
 ;; tg000:       10.28.102.200
 
-;;; check は mongodb へのクエリーにすべきか？
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
-  (let* ((ans0 (sheets (format nil "~a_~a" term year)
+  (let* ((ans0 (seats (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
                      :date date))
          (pat (cond
                 ((string= room "c-2b") "10.28.100")
                 ((string= room "c-2g") "10.28.102")
                 (t (error (format nil "unknown class room: ~a" room)))))
-         (ans (remove-if-not #'(lambda (x) (scan pat (second x))) ans0)))
+         (ans (remove-if-not #'(lambda (x) (scan pat (first x))) ans0)))
     (standard-page
         (:title "Sheet:check")
-      (:h3 "Sheets")
+      (:h3 "Seats")
       (:p "ans :" (format t "~a" ans))
       (:p (:a :href "/form" "back")))))
 
@@ -96,9 +73,10 @@
 
 ;; ((sid ip) ...) のリストを返したい。
 ;; このリストは上位関数で部屋番号 room でフィルタされる。
-(defun sheets (col &key uhour date)
+;; CHANGED: 0.3.1 ((ip sid) ...)
+(defun seats (col &key uhour date)
   (mapcar
-   #'(lambda (x) (list (get-element "sid" x) (get-element "ip" x)))
+   #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
    (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
 
 

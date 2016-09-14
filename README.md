@@ -1,4 +1,4 @@
-# Sheets
+# Seats
 
 C-2B/C-2G の着席状況をブラウザ上に表示。
 
@@ -17,6 +17,9 @@ ccl64 をやめ、sbcl に切り替えると動作するようになる。
 
 * cl-mongo-20131003-git
 * usocket-0.6.4
+
+mongodb が ipv6 で動作し、ccl から cl-mongo/usocket で接続した時、失敗する模様。
+回避策は？
 
 ## Usage
 

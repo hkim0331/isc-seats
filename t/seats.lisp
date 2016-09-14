@@ -1,9 +1,9 @@
 (in-package :cl-user)
-(defpackage sheets-test
+(defpackage seats-test
   (:use :cl
-        :sheets
+        :seats
         :prove))
-(in-package :sheets-test)
+(in-package :seats-test)
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :sheets)' in your Lisp.
 
