@@ -38,3 +38,9 @@
         ($ "uhour" (format nil "~a~a" wday hour))
         ($ "date" date)
         ($ "ip" ip)))))
+
+(defun seeds (n)
+  (dotimes (i n)
+    (seed +c-2b+)
+    (seed +c-2g+)))
+
