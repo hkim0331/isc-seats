@@ -1,4 +1,4 @@
-(in-package :sheets)
+(in-package :seats)
 
 (defun range (n)
   (labels ((R (n ret)
