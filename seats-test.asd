@@ -1,21 +1,21 @@
 #|
-  This file is a part of sheets project.
+  This file is a part of seats project.
 |#
 
 (in-package :cl-user)
-(defpackage sheets-test-asd
+(defpackage seats-test-asd
   (:use :cl :asdf))
-(in-package :sheets-test-asd)
+(in-package :seats-test-asd)
 
-(defsystem sheets-test
+(defsystem seats-test
   :author ""
   :license ""
-  :depends-on (:sheets
+  :depends-on (:seats
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "sheets"))))
-  :description "Test system for sheets"
+                ((:test-file "seats"))))
+  :description "Test system for seats"
 
   :defsystem-depends-on (:prove-asdf)
   :perform (test-op :after (op c)
