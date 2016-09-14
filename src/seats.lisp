@@ -20,7 +20,7 @@
        (:title ,title)
        (:link :rel "stylesheet"
               :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-       (:link :type "text/css" :rel "stylesheet" :href "/sheets.css"))
+       (:link :type "text/css" :rel "stylesheet" :href "/sests.css"))
       (:body
        (:div :class "container"
         ,@body
