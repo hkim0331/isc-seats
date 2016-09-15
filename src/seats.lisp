@@ -76,11 +76,15 @@
 ;; tb000:       10.28.100.200
 ;; 各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
 ;;
-  ;; tg001-tg100:10.28.102.1-100
-  ;; tg000:      10.28.102.200
-  ;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
+;; tg001-tg100:10.28.102.1-100
+;; tg000:      10.28.102.200
+;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
+
 (defun make-seats (tops)
-  (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops)))
+  (transpose (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
+
+(defvar *c-2b* (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
+(defvar *c-2g* (make-seats '(1 13 25 37 49 61 73 87 101)))
 
 (defun seats (col &key uhour date)
   "((ip sid) ...) のリストを返す。
