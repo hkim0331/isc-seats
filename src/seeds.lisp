@@ -1,16 +1,11 @@
 (in-package :seats)
 
 (defparameter +year+ #(2016 2017))
-(defparameter +term+ #("q1" "q2" "q3" "q4"))
-(defparameter +sid+ #("hiroshi" "miyuki" "akari" "isana" "aoi"))
-(defparameter +wday+ #("Mon" "Tue" "Wed" "Thr" "Fri"))
-(defparameter +hour+ #(1 2 3 4 5))
+(defparameter +term+ #("q3" "q4"))
+(defparameter +sid+ #("hkim" "miyuki" "akari" "isana" "aoi"))
+(defparameter +wday+ #("Mon" "Tue" "Wed" "Thu" "Fri"))
+(defparameter +hour+ #(1 2 3 4 5 0))
 (defparameter +date+ #("2016-09-14" "1985-10-26" "1962-04-20"))
-(defun range (n)
-  (labels ((R (n ret)
-             (if (< n 0) ret
-                 (R (- n 1) (cons n ret)))))
-    (R n nil)))
 
 (defparameter +c-2b+
   (apply #'vector
@@ -39,6 +34,7 @@
         ($ "date" date)
         ($ "ip" ip)))))
 
+;;(db.use "test")
 (defun seeds (n)
   (dotimes (i n)
     (seed +c-2b+)

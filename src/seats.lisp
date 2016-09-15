@@ -3,8 +3,31 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
-(cl-mongo:db.use "ucome")
+;; misc. functions
+(defun range (from &optional to step)
+  "(range 4) => (0 1 2 3)
+(range 1 4) => (1 2 3)
+(range 1 10 2) => (1 3 5 7 9)"
+  (labels ((R (from to step ret)
+             (if (>= from to) (nreverse ret)
+                 (R (+ from step) to step (cons from ret)))))
+    (cond
+      ((null to) (R 0 from 1 nil))
+      ((null step) (R from to 1 nil))
+      (t (R from to step nil)))))
 
+
+
+
+(defun partition (xs)
+  "(partition '(1 2 3 4)) => ((1 2) (2 3) (3 4))"
+  (apply #'mapcar #'list (list xs (cdr xs))))
+
+(defun transpose (list-of-list)
+  "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
+     (apply #'mapcar #'list list-of-list))
+
+(cl-mongo:db.use "ucome")
 (setf (html-mode) :html5)
 
 (defmacro standard-page ((&key title) &body body)
@@ -20,12 +43,12 @@
        (:title ,title)
        (:link :rel "stylesheet"
               :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-       (:link :type "text/css" :rel "stylesheet" :href "/sests.css"))
+       (:link :type "text/css" :rel "stylesheet" :href "/seats.css"))
       (:body
        (:div :class "container"
         ,@body
         (:hr)
-        (:span "programmed by hkimura, release 0.3.")
+        (:span "programmed by hkimura.")
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
@@ -33,7 +56,7 @@
 (defun start-server (&optional (port 8080))
   (start (make-instance 'easy-acceptor :port port)))
 
-;;; FIXME: polish up the code.
+;;; FIXME: polish up HTML form.
 (define-easy-handler (form :uri "/form") ()
   (standard-page
       (:title "Seat:form")
@@ -51,8 +74,21 @@
 
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
-;; tg001-tg100: 10.28.102.1-100
-;; tg000:       10.28.102.200
+;; 各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
+;;
+  ;; tg001-tg100:10.28.102.1-100
+  ;; tg000:      10.28.102.200
+  ;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
+(defun make-seats (tops)
+  (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops)))
+
+(defun seats (col &key uhour date)
+  "((ip sid) ...) のリストを返す。
+  ip を端末番号に変えると ip でフィルタリングできなくなる。
+  ip のままで。"
+  (mapcar
+   #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
+   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
 
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
   (let* ((ans0 (seats (format nil "~a_~a" term year)
@@ -70,13 +106,3 @@
       (:p (format t "ans: ~a" ans))
       (:p (:a :href "/form" "back")))))
 
-
-
-;; ((sid ip) ...) のリストを返したい。
-;; このリストは上位関数で部屋番号 room でフィルタされる。
-;; CHANGED: 0.3.1 ((ip sid) ...)
-;; ENBUG! 2016-09-15, (db.use "ucome") していなかった。
-(defun seats (col &key uhour date)
-  (mapcar
-   #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
-   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
