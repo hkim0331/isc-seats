@@ -79,11 +79,21 @@
 ;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
 
 (defun make-seats (tops)
-  (transpose (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
+  (transpose
+   (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
 
 (defvar *c-2b* (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
 (defvar *c-2g* (make-seats '(1 13 25 37 49 61 73 87 101)))
 
+(defun tables (room)
+  (let ((first-tables
+         (cond
+           ((string= room "c-2b") '(1 9 17 26 35 43 51 59 67 75 83))
+           ((string= room "c-2g") '(1 13 25 37 49 61 73 87 101))
+           (t (error (format nil "unknown room ~a" room))))))
+    (make-seats first-tables)))
+
+;; FIXME, seats の内部関数に？
 (defun seats-aux (col &key uhour date)
   "((ip sid) ...) のリストを返す。
   ip を端末番号に変えると ip でフィルタリングできなくなる。
@@ -103,18 +113,19 @@
      (seats-aux col :uhour uhour :date date))))
 
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
-  (let* ((ans0 (seats (format nil "~a_~a" term year)
+  (let ((students (seats (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
-                     :date date))
-         (pat (cond
-                ((string= room "c-2b") "10.28.100")
-                ((string= room "c-2g") "10.28.102")
-                (t (error (format nil "unknown class room: ~a" room)))))
-         (ans (remove-if-not #'(lambda (x) (scan pat (first x))) ans0)))
+                     :date date
+                     :room room))
+        (tables (tables room)))
     (standard-page
         (:title "Sheet:check")
       (:h3 "Seats")
-      (:p (format t "ans0: ~a" ans0))
-      (:p (format t "ans: ~a" ans))
+      (:p (format t "students: ~a" students))
+      (:table
+       (dolist (row tables)
+         (htm (:tr
+               (dolist (s row)
+                 (htm (:td (str s))))))))
       (:p (:a :href "/form" "back")))))
 
