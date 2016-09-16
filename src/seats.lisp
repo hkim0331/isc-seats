@@ -39,9 +39,8 @@
        (:meta :name "viewport"
               :content "width=device-width, initial-scale=1.0")
        (:title ,title)
-       (:link :rel "stylesheet"
-              :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-       (:link :type "text/css" :rel "stylesheet" :href "/seats.css"))
+       (:link :rel "stylesheet" :href "/seats.css")
+       (:link :rel "stylesheet" :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"))
       (:body
        (:div :class "container"
         ,@body
@@ -52,7 +51,7 @@
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/seats.css" "/static/seats.css")
+         "/seats.css" "static/seats.css")
         *dispatch-table*))
 
 (defvar *http* nil)
@@ -60,7 +59,7 @@
 (defun start-server (&optional (port 8080))
   (setf *http* (make-instance 'easy-acceptor :port port))
   (publish-static-content)
-  (start-server))
+  (start *http*))
 
 (defun stop-server ()
   (stop *http*))
