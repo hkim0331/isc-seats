@@ -16,9 +16,6 @@
       ((null step) (R from to 1 nil))
       (t (R from to step nil)))))
 
-
-
-
 (defun partition (xs)
   "(partition '(1 2 3 4)) => ((1 2) (2 3) (3 4))"
   (apply #'mapcar #'list (list xs (cdr xs))))
@@ -27,7 +24,8 @@
   "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
      (apply #'mapcar #'list list-of-list))
 
-(cl-mongo:db.use "ucome")
+(cl-mongo:db.use "test")
+
 (setf (html-mode) :html5)
 
 (defmacro standard-page ((&key title) &body body)
@@ -86,13 +84,23 @@
 (defvar *c-2b* (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
 (defvar *c-2g* (make-seats '(1 13 25 37 49 61 73 87 101)))
 
-(defun seats (col &key uhour date)
+(defun seats-aux (col &key uhour date)
   "((ip sid) ...) のリストを返す。
   ip を端末番号に変えると ip でフィルタリングできなくなる。
   ip のままで。"
   (mapcar
    #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
    (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
+
+(defun seats (col &key uhour date room)
+  (let ((ip
+         (cond
+           ((string= room "c-2b") "10.28.100")
+           ((string= room "c-2g") "10.28.102")
+           (t (error (format nil "unknown room ~a" room))))))
+    (remove-if-not
+     #'(lambda (e) (ppcre:scan ip (first e)))
+     (seats-aux col :uhour uhour :date date))))
 
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
   (let* ((ans0 (seats (format nil "~a_~a" term year)
