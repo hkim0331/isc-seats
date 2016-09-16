@@ -50,9 +50,20 @@
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-;; (use :hunchentoot) しない時、start はフルパスで hunchentoot:start のように。
+(defun publish-static-content ()
+  (push (create-static-file-dispatcher-and-handler
+         "/seats.css" "/static/seats.css")
+        *dispatch-table*))
+
+(defvar *http* nil)
+
 (defun start-server (&optional (port 8080))
-  (start (make-instance 'easy-acceptor :port port)))
+  (setf *http* (make-instance 'easy-acceptor :port port))
+  (publish-static-content)
+  (start-server))
+
+(defun stop-server ()
+  (stop *http*))
 
 ;;; FIXME: polish up HTML form.
 (define-easy-handler (form :uri "/form") ()
@@ -112,20 +123,27 @@
      #'(lambda (e) (ppcre:scan ip (first e)))
      (seats-aux col :uhour uhour :date date))))
 
+(defun name (n ip-name)
+  (cond
+    ((null ip-name) " ")
+    ((ppcre:scan (format nil ".~a$" n) (caar ip-name)) (cadar ip-name))
+    (t (name n (cdr ip-name)))))
+
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
   (let ((students (seats (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
                      :date date
                      :room room))
         (tables (tables room)))
-    (standard-page
-        (:title "Sheet:check")
-      (:h3 "Seats")
-      (:p (format t "students: ~a" students))
-      (:table
-       (dolist (row tables)
-         (htm (:tr
-               (dolist (s row)
-                 (htm (:td (str s))))))))
-      (:p (:a :href "/form" "back")))))
+          (standard-page
+          (:title "Sheet:check")
+        (:h3 "Seats")
+        (:p (format t "students: ~a" students))
+        (:table
+         (dolist (row tables)
+           (htm (:tr
+                 (dolist (n row)
+                   (htm (:td :class "seat" (str (name n students)))))))))
+        (:p (:a :href "/form" "back")))
+          ))
 
