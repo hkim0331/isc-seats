@@ -1,0 +1,15 @@
+/*
+table#seat { border-collapse: collapse; }
+*/
+table {
+    border-collapse: separate;
+}
+
+td.seat {
+    width: 20mm;
+    height: 10mm;
+    border: 1pt solid black;
+    background: lightyellow;
+    border-collapse: separate;
+    text-align: center;
+}

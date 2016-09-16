@@ -16,9 +16,6 @@
       ((null step) (R from to 1 nil))
       (t (R from to step nil)))))
 
-
-
-
 (defun partition (xs)
   "(partition '(1 2 3 4)) => ((1 2) (2 3) (3 4))"
   (apply #'mapcar #'list (list xs (cdr xs))))
@@ -27,7 +24,8 @@
   "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
      (apply #'mapcar #'list list-of-list))
 
-(cl-mongo:db.use "ucome")
+(cl-mongo:db.use "test")
+
 (setf (html-mode) :html5)
 
 (defmacro standard-page ((&key title) &body body)
@@ -41,9 +39,8 @@
        (:meta :name "viewport"
               :content "width=device-width, initial-scale=1.0")
        (:title ,title)
-       (:link :rel "stylesheet"
-              :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-       (:link :type "text/css" :rel "stylesheet" :href "/seats.css"))
+       (:link :rel "stylesheet" :href "/seats.css")
+       (:link :rel "stylesheet" :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"))
       (:body
        (:div :class "container"
         ,@body
@@ -52,9 +49,20 @@
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-;; (use :hunchentoot) しない時、start はフルパスで hunchentoot:start のように。
+(defun publish-static-content ()
+  (push (create-static-file-dispatcher-and-handler
+         "/seats.css" "static/seats.css")
+        *dispatch-table*))
+
+(defvar *http* nil)
+
 (defun start-server (&optional (port 8080))
-  (start (make-instance 'easy-acceptor :port port)))
+  (setf *http* (make-instance 'easy-acceptor :port port))
+  (publish-static-content)
+  (start *http*))
+
+(defun stop-server ()
+  (stop *http*))
 
 ;;; FIXME: polish up HTML form.
 (define-easy-handler (form :uri "/form") ()
@@ -76,13 +84,27 @@
 ;; tb000:       10.28.100.200
 ;; 各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
 ;;
-  ;; tg001-tg100:10.28.102.1-100
-  ;; tg000:      10.28.102.200
-  ;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
-(defun make-seats (tops)
-  (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops)))
+;; tg001-tg100:10.28.102.1-100
+;; tg000:      10.28.102.200
+;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
 
-(defun seats (col &key uhour date)
+(defun make-seats (tops)
+  (transpose
+   (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
+
+(defvar *c-2b* (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
+(defvar *c-2g* (make-seats '(1 13 25 37 49 61 73 87 101)))
+
+(defun tables (room)
+  (let ((first-tables
+         (cond
+           ((string= room "c-2b") '(1 9 17 26 35 43 51 59 67 75 83))
+           ((string= room "c-2g") '(1 13 25 37 49 61 73 87 101))
+           (t (error (format nil "unknown room ~a" room))))))
+    (make-seats first-tables)))
+
+;; FIXME, seats の内部関数に？
+(defun seats-aux (col &key uhour date)
   "((ip sid) ...) のリストを返す。
   ip を端末番号に変えると ip でフィルタリングできなくなる。
   ip のままで。"
@@ -90,19 +112,37 @@
    #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
    (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
 
+(defun seats (col &key uhour date room)
+  (let ((ip
+         (cond
+           ((string= room "c-2b") "10.28.100")
+           ((string= room "c-2g") "10.28.102")
+           (t (error (format nil "unknown room ~a" room))))))
+    (remove-if-not
+     #'(lambda (e) (ppcre:scan ip (first e)))
+     (seats-aux col :uhour uhour :date date))))
+
+(defun name (n ip-name)
+  (cond
+    ((null ip-name) " ")
+    ((ppcre:scan (format nil ".~a$" n) (caar ip-name)) (cadar ip-name))
+    (t (name n (cdr ip-name)))))
+
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
-  (let* ((ans0 (seats (format nil "~a_~a" term year)
+  (let ((students (seats (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
-                     :date date))
-         (pat (cond
-                ((string= room "c-2b") "10.28.100")
-                ((string= room "c-2g") "10.28.102")
-                (t (error (format nil "unknown class room: ~a" room)))))
-         (ans (remove-if-not #'(lambda (x) (scan pat (first x))) ans0)))
-    (standard-page
-        (:title "Sheet:check")
-      (:h3 "Seats")
-      (:p (format t "ans0: ~a" ans0))
-      (:p (format t "ans: ~a" ans))
-      (:p (:a :href "/form" "back")))))
+                     :date date
+                     :room room))
+        (tables (tables room)))
+          (standard-page
+          (:title "Sheet:check")
+        (:h3 "Seats")
+        (:p (format t "students: ~a" students))
+        (:table
+         (dolist (row tables)
+           (htm (:tr
+                 (dolist (n row)
+                   (htm (:td :class "seat" (str (name n students)))))))))
+        (:p (:a :href "/form" "back")))
+          ))
 
