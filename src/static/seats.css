@@ -1,8 +1,13 @@
 /*
 table#seat { border-collapse: collapse; }
 */
-table {
+
+table#seat {
     border-collapse: separate;
+}
+
+table#selector {
+    border-collapse: collapse;
 }
 
 td.seat {

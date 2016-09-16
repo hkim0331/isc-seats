@@ -22,7 +22,7 @@
 
 (defun transpose (list-of-list)
   "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
-     (apply #'mapcar #'list list-of-list))
+  (apply #'mapcar #'list list-of-list))
 
 (cl-mongo:db.use "test")
 
@@ -38,9 +38,9 @@
        (:meta :http-equiv "X-UA-Compatible" :content "IE=edge")
        (:meta :name "viewport"
               :content "width=device-width, initial-scale=1.0")
-       (:title ,title)
-       (:link :rel "stylesheet" :href "/seats.css")
-       (:link :rel "stylesheet" :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"))
+       (:link :rel "stylesheet" :type "text/css" :href "/seats.css")
+       (:link :rel "stylesheet" :type "text/css" :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+       (:title ,title))
       (:body
        (:div :class "container"
         ,@body
@@ -51,8 +51,10 @@
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/seats.css" "static/seats.css")
-        *dispatch-table*))
+         "/seats.css" "static/seats.css") *dispatch-table*))
+
+;; necessary?
+(publish-static-content)
 
 (defvar *http* nil)
 
@@ -70,7 +72,7 @@
       (:title "Seat:form")
     (:h3 "Select Class")
     (:form :method "post" :action "/check"
-     (:table
+     (:table :id "selector"
       (:tr (:td "year") (:td (:input :name "year" :placeholder "2016")))
       (:tr (:td "term") (:td (:input :name "term")))
       (:tr (:td "wday") (:td (:input :name "wday")))
@@ -138,7 +140,7 @@
           (:title "Sheet:check")
         (:h3 "Seats")
         (:p (format t "students: ~a" students))
-        (:table
+        (:table :id "seat"
          (dolist (row tables)
            (htm (:tr
                  (dolist (n row)
