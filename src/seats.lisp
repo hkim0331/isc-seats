@@ -34,9 +34,9 @@
   (start (make-instance 'easy-acceptor :port port)))
 
 ;;; FIXME: polish up the code.
-(define-easy-handler (form :uri "/form") ()
+(define-easy-handler (index :uri "/index") ()
   (standard-page
-      (:title "Seat:form")
+      (:title "Seat:index")
     (:h3 "Select Class")
     (:form :method "post" :action "/check"
      (:table
@@ -69,7 +69,6 @@
       (:p (format t "ans0: ~a" ans0))
       (:p (format t "ans: ~a" ans))
       (:p (:a :href "/form" "back")))))
-
 
 
 ;; ((sid ip) ...) のリストを返したい。
