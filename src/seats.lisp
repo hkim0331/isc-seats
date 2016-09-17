@@ -115,7 +115,7 @@
 (defun name (n ip-name)
   (cond
     ((null ip-name) " ")
-    ((ppcre:scan (format nil ".~a$" n) (caar ip-name)) (cadar ip-name))
+    ((ppcre:scan (format nil "\\.~a$" n) (caar ip-name)) (cadar ip-name))
     (t (name n (cdr ip-name)))))
 
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
@@ -132,7 +132,9 @@
          (dolist (row tables)
            (htm (:tr
                  (dolist (n row)
-                   (htm (:td :class "seat" (str (name n students)))))))))
+                   (htm (:td :class "seat"
+                             (format t "~a" (name n students))
+                             )))))))
         (:p (:a :href "/index" "back")))))
 
 ;;; server start/stop
