@@ -53,8 +53,6 @@
         (:script :src "https://code.jquery.com/jquery.js")
         (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
 
-
-
 ;;; FIXME: polish up HTML form.
 (define-easy-handler (form :uri "/form") ()
   (standard-page
