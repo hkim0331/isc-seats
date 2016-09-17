@@ -34,10 +34,14 @@
      (:html
       :lang "ja"
       (:head
-       (:meta :charset "utf-8")
-       (:meta :http-equiv "X-UA-Compatible" :content "IE=edge")
-       (:meta :name "viewport"
-              :content "width=device-width, initial-scale=1.0")
+       (:meta
+        :charset "utf-8")
+       (:meta
+        :http-equiv "X-UA-Compatible"
+        :content "IE=edge")
+       (:meta
+        :name "viewport"
+        :content "width=device-width, initial-scale=1.0")
        (:link
         :rel "stylesheet"
         :href "/seats.css")
@@ -49,12 +53,10 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span "programmed by hkimura.")
-        (:script :src "https://code.jquery.com/jquery.js")
-        (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
+        (:span "programmed by hkimura."))))))
 
 ;;; FIXME: polish up HTML form.
-(define-easy-handler (form :uri "/form") ()
+(define-easy-handler (index :uri "/index") ()
   (standard-page
       (:title "Seat:form")
     (:h3 "Select Class")
@@ -67,7 +69,6 @@
       (:tr (:td "room") (:td (:input :name "room")))
       (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
-
 
 (defun make-seats (tops)
   (transpose
@@ -132,8 +133,7 @@
            (htm (:tr
                  (dolist (n row)
                    (htm (:td :class "seat" (str (name n students)))))))))
-        (:p (:a :href "/form" "back")))
-          ))
+        (:p (:a :href "/index" "back")))))
 
 ;;; server start/stop
 (defun static-contents ()
@@ -149,3 +149,7 @@
 
 (defun stop-server ()
   (stop *http*))
+
+(defun main ()
+  (start-server 8080)
+  (loop (sleep 60)))

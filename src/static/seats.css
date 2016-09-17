@@ -10,11 +10,12 @@ table#selector {
     border-collapse: collapse;
 }
 
-td.seat {
+td {
     width: 20mm;
     height: 10mm;
     border: 1pt solid black;
-    background: lightyellow;
+    background: lightgreen;
     border-collapse: separate;
     text-align: center;
+    margin: 2px;
 }

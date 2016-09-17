@@ -7,7 +7,7 @@ ssh しまくってログインしているユーザ、端末をかき集める�
 くだらないポリシーのため、
 スクリプトを書いた当時の方法では学生の端末に ssh できなくなった。
 
-4年生青木に開発のようすを見せる目的もかねて、sheets する。
+4年生青木に開発のようすを見せる目的もかねて、seats する。
 
 ## BUG
 
@@ -18,10 +18,13 @@ ccl64 をやめ、sbcl に切り替えると動作するようになる。
 * cl-mongo-20131003-git
 * usocket-0.6.4
 
-mongodb が ipv6 で動作し、ccl から cl-mongo/usocket で接続した時、失敗する模様。
-回避策は？
+ccl から cl-mongo/usocket で接続した時、ipv6 のソケット作ろうとして失敗する模様。
+sbcl から cl-mongo は ipv6 ではなく ipv4 のソケットをクリエートする？
 
 ## Usage
+
+static/ は sb-ext:save-lisp-and-die では持ち運びされない。
+サーバにコピーすること。
 
 ## Installation
 
