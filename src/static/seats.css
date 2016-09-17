@@ -11,10 +11,18 @@ table#selector {
 }
 
 td {
+    background: lightyellow;
+    border: 1pt solid black;
+}
+
+table#selector td {
+    text-align:left;
+    padding: 5px;
+}
+
+table#seat td {
     width: 20mm;
     height: 10mm;
-    border: 1pt solid black;
-    background: lightyellow;
     border-collapse: separate;
     text-align: center;
     margin: 2px;
