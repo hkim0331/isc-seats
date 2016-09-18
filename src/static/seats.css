@@ -2,7 +2,7 @@
 table#seat { border-collapse: collapse; }
 */
 
-table#seat {
+table#seats {
     border-collapse: separate;
 }
 
@@ -20,7 +20,7 @@ table#selector td {
     padding: 5px;
 }
 
-table#seat td {
+table#seats td {
     width: 20mm;
     height: 10mm;
     border-collapse: separate;

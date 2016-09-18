@@ -3,6 +3,8 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
+(defvar *version* "0.5.4")
+
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
 (range 1 4) => (1 2 3)
@@ -54,7 +56,7 @@
        (:div :class "container"
         ,@body
         (:hr)
-        (:span "programmed by hkimura."))))))
+        (:span (format t "programmed by hkimura, ~a." *version*)))))))
 
 
 (defmacro radios (name values)
@@ -139,17 +141,20 @@
                      :date date
                      :room room))
         (tables (tables room)))
-          (standard-page
-          (:title "Sheet:check")
-        (:h3 "Seats")
-        (:p (format t "students: ~a" students))
-        (:table :id "seat"
-         (dolist (row tables)
-           (htm (:tr
-                 (dolist (n row)
-                   (htm (:td :class "seat"
-                             (format t "~a" (name n students)))))))))
-        (:p (:a :href "/index" "back")))))
+    (standard-page
+        (:title "Sheet:check")
+      ;; (:p (format t "students: ~a" students))
+      (:h3 (format t "~a_~a ~a~a ~a ~a" year term wday hour room date))
+      (:p "↑ FRONT")
+      (:div
+       (:table
+        :id "seats"
+        (dolist (row tables)
+          (htm (:tr
+                (dolist (n row)
+                  (htm (:td :class "seat"
+                            (format t "~a" (name n students))))))))))
+      (:p (:a :href "/index" "back")))))
 
 ;; server start/stop
 ;; check working directory.

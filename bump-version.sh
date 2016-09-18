@@ -1,9 +1,18 @@
 #!/bin/sh
 
 if [ $# -ne 1 ]; then
-	echo usage: $0 version
-	exit 1;
+    echo usage: $0 VERSION
+    exit
+fi
+VERSION=$1
+
+if [ `uname` = 'Darwin' -a -e /usr/local/bin/gsed ]; then
+    SED=/usr/local/bin/gsed
+else
+    SED=sed
 fi
 
-echo $0 > VERSION
+${SED} -i.bak "/(defvar \*version\*/ c\
+(defvar *version* \"${VERSION}\")" src/seats.lisp
 
+echo ${VERSION} > VERSION
