@@ -127,7 +127,7 @@
      (seats-aux col :uhour uhour :date date))))
 
 (defun name (n ip-name)
-  "((ip name) ...) のリストから ip の第4オクテットが n であるものの名前を返す。"
+  "((ip name) ...) のリストから ip の第 4 オクテットが n であるものの名前を返す。"
   (cond
     ((null ip-name) " ")
     ((ppcre:scan (format nil "\\.~a$" n) (caar ip-name)) (cadar ip-name))
@@ -148,8 +148,7 @@
            (htm (:tr
                  (dolist (n row)
                    (htm (:td :class "seat"
-                             (format t "~a" (name n students))
-                             )))))))
+                             (format t "~a" (name n students)))))))))
         (:p (:a :href "/index" "back")))))
 
 (defun static-contents ()
