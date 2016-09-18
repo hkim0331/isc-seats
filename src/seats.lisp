@@ -63,7 +63,7 @@
 
 (define-easy-handler (index :uri "/index") ()
   (standard-page
-      (:title "Seat:form")
+      (:title "Seat:index")
     (:h3 "Select Class")
     (:form
      :method "post" :action "/check"
@@ -151,6 +151,8 @@
                              (format t "~a" (name n students)))))))))
         (:p (:a :href "/index" "back")))))
 
+;; server start/stop
+;; check working directory.
 (defun static-contents ()
   (push (create-static-file-dispatcher-and-handler
          "/seats.css" "static/seats.css") *dispatch-table*))
