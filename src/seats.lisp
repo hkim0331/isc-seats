@@ -34,39 +34,28 @@
      (:html
       :lang "ja"
       (:head
-       (:meta :charset "utf-8")
-       (:meta :http-equiv "X-UA-Compatible" :content "IE=edge")
-       (:meta :name "viewport"
-              :content "width=device-width, initial-scale=1.0")
-       (:link :rel "stylesheet" :type "text/css" :href "/seats.css")
-       (:link :rel "stylesheet" :type "text/css" :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+       (:meta
+        :charset "utf-8")
+       (:meta
+        :http-equiv "X-UA-Compatible"
+        :content "IE=edge")
+       (:meta
+        :name "viewport"
+        :content "width=device-width, initial-scale=1.0")
+       (:link
+        :rel "stylesheet"
+        :href "/seats.css")
+       (:link
+        :rel "stylesheet"
+        :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
        (:title ,title))
       (:body
        (:div :class "container"
         ,@body
         (:hr)
-        (:span "programmed by hkimura.")
-        (:script :src "https://code.jquery.com/jquery.js")
-        (:script :src "https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"))))))
+        (:span "programmed by hkimura."))))))
 
-(defun publish-static-content ()
-  (push (create-static-file-dispatcher-and-handler
-         "/seats.css" "static/seats.css") *dispatch-table*))
-
-;; necessary?
-(publish-static-content)
-
-(defvar *http* nil)
-
-(defun start-server (&optional (port 8080))
-  (setf *http* (make-instance 'easy-acceptor :port port))
-  (publish-static-content)
-  (start *http*))
-
-(defun stop-server ()
-  (stop *http*))
-
-;;; FIXME: polish up the code.
+;;; FIXME: polish up HTML form.
 (define-easy-handler (index :uri "/index") ()
   (standard-page
       (:title "Seat:index")
@@ -81,6 +70,9 @@
       (:tr (:td "date") (:td (:input :name "date"))))
      (:input :type "submit"))))
 
+(defun make-seats (tops)
+  (transpose
+   (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
 
 ;; tb001-tb082: 10.28.100.1-82
 ;; tb000:       10.28.100.200
@@ -89,10 +81,6 @@
 ;; tg001-tg100:10.28.102.1-100
 ;; tg000:      10.28.102.200
 ;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
-
-(defun make-seats (tops)
-  (transpose
-   (mapcar #'(lambda (xs) (apply #'range xs)) (partition tops))))
 
 (defvar *c-2b* (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
 (defvar *c-2g* (make-seats '(1 13 25 37 49 61 73 87 101)))
@@ -127,7 +115,7 @@
 (defun name (n ip-name)
   (cond
     ((null ip-name) " ")
-    ((ppcre:scan (format nil ".~a$" n) (caar ip-name)) (cadar ip-name))
+    ((ppcre:scan (format nil "\\.~a$" n) (caar ip-name)) (cadar ip-name))
     (t (name n (cdr ip-name)))))
 
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
@@ -144,7 +132,27 @@
          (dolist (row tables)
            (htm (:tr
                  (dolist (n row)
-                   (htm (:td :class "seat" (str (name n students)))))))))
-        (:p (:a :href "/form" "back")))
-          ))
+                   (htm (:td :class "seat"
+                             (format t "~a" (name n students))
+                             )))))))
+        (:p (:a :href "/index" "back")))))
 
+;; server start/stop
+;; check working directory.
+(defun static-contents ()
+  (push (create-static-file-dispatcher-and-handler
+         "/seats.css" "static/seats.css") *dispatch-table*))
+
+(defvar *http*)
+
+(defun start-server (&optional (port 8080))
+  (static-contents)
+  (setf *http* (make-instance 'easy-acceptor :port port))
+  (start *http*))
+
+(defun stop-server ()
+  (stop *http*))
+
+(defun main ()
+  (start-server 8080)
+  (loop (sleep 60)))
