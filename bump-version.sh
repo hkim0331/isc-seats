@@ -15,4 +15,7 @@ fi
 ${SED} -i.bak "/(defvar \*version\*/ c\
 (defvar *version* \"${VERSION}\")" src/seats.lisp
 
+${SED} -i.bak "/:version / c\
+  :version \"${VERSION}\"" seats.asd
+
 echo ${VERSION} > VERSION

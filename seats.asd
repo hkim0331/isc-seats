@@ -8,7 +8,7 @@
 (in-package :seats-asd)
 
 (defsystem seats
-  :version "0.3"
+:version "0.5.4"
   :author "hiroshi.kimura.0331@gmail.com"
   :license "free"
   :depends-on (:cl-mongo

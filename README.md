@@ -18,15 +18,18 @@ ccl64 をやめ、sbcl に切り替えると動作するようになる。
 * cl-mongo-20131003-git
 * usocket-0.6.4
 
-ccl から cl-mongo/usocket で接続した時、ipv6 のソケット作ろうとして失敗する模様。
-sbcl から cl-mongo は ipv6 ではなく ipv4 のソケットをクリエートする？
+usocket が ipv6 の通信しようとして失敗するのか？
+ccl/cl-mongo/usocket は、ipv6 のソケット作ろうとする。
+sbcl/cl-mongo/usocket は ipv4 で通信している模様。
+
+リモートで起動した mongod の ipv4 ポートを転送して、ccl/cl-mongoはエラーにならない。
 
 ## Usage
 
-static/ は sb-ext:save-lisp-and-die では持ち運びされない。
-サーバにコピーすること。
-
 ## Installation
+
+static/ は sb-ext:save-lisp-and-die では持ち回られない。
+サーバにコピーすること。
 
 ## Author
 
