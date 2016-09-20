@@ -13,6 +13,7 @@ ssh しまくってログインしているユーザ、端末をかき集める�
 
 * sb-ext:save-lisp-and-die で作成したバイナリが動作しない。
   index は表示するが、mongodb と接続しようとしてダメみたい。
+  Bad file descriptor とは？
   次は imac2 でのログ(適当に改行)。
 
     127.0.0.1 - [2016-09-20 11:59:17] "POST /check HTTP/1.1" 200 2828 "http://localhost:8080/index" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.8 (KHTML, like Gecko) Version/9.1.3 Safari/601.7.8"

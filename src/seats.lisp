@@ -135,6 +135,7 @@
     ((ppcre:scan (format nil "\\.~a$" n) (caar ip-name)) (cadar ip-name))
     (t (name n (cdr ip-name)))))
 
+;;; FIXME:関数名を再考しよう。
 (define-easy-handler (check :uri "/check") (year term wday hour room date)
   (let ((students (seats (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
