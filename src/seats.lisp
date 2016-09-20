@@ -143,7 +143,6 @@
         (tables (tables room)))
     (standard-page
         (:title "Sheet:check")
-      ;; (:p (format t "students: ~a" students))
       (:h3 (format t "~a_~a ~a~a ~a ~a" year term wday hour room date))
       (:p "↑ FRONT")
       (:div
