@@ -3,7 +3,7 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
-(defvar *version* "0.5.4")
+(defvar *version* "0.5.5")
 
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
@@ -167,7 +167,8 @@
 (defun start-server (&optional (port 8080))
   (static-contents)
   (setf *http* (make-instance 'easy-acceptor :port port))
-  (start *http*))
+  (start *http*)
+  (format t "server started at port ~a." port))
 
 (defun stop-server ()
   (stop *http*))
