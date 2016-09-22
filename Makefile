@@ -8,7 +8,8 @@ seats:
 		--eval "(ql:quickload '(seats hunchentoot cl-who cl-mongo))" \
 		--eval "(in-package :seats)" \
 		--eval "(sb-ext:save-lisp-and-die \"src/seats\" :executable t :toplevel 'main)"
-	echo saved binary as src/seats. check location of 'static' folder.
+	@echo saved binary as src/seats.
+	@echo 'static' folder must exist in the same folder of 'seat'.
 
 mongo:
 	ssh -fN -L 27017:localhost:27017 hkim@dbs.melt.kyutech.ac.jp &
