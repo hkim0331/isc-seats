@@ -2,7 +2,7 @@
 
 (defparameter +year+ #(2016 2017))
 (defparameter +term+ #("q3" "q4"))
-(defparameter +sid+ #("hkim" "miyuki" "akari" "isana" "aoi"))
+(defparameter +sid+  #("hkim" "miyuki" "akari" "isana" "aoi"))
 (defparameter +wday+ #("Mon" "Tue" "Wed" "Thu" "Fri"))
 (defparameter +hour+ #(1 2 3 4 5 0))
 (defparameter +date+ #("2016-09-14" "1985-10-26" "1962-04-20"))
@@ -22,11 +22,11 @@
 (defun seed (ip)
   (let ((year (choose +year+))
         (term (choose +term+))
-        (sid (choose +sid+))
+        (sid  (choose +sid+))
         (wday (choose +wday+))
         (hour (choose +hour+))
         (date (choose +date+))
-        (ip (choose ip)))
+        (ip   (choose ip)))
     (cl-mongo:db.insert
      (format nil "~a_~a" term year)
      ($ ($ "sid" sid)
@@ -34,8 +34,8 @@
         ($ "date" date)
         ($ "ip" ip)))))
 
-;;(db.use "test")
 (defun seeds (n)
+  (db.use "test")
   (dotimes (i n)
     (seed +c-2b+)
     (seed +c-2g+)))
