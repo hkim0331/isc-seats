@@ -11,7 +11,7 @@ seats:
 	echo check location of 'static' folder.
 
 mongo:
-	ssh -fN -L 27017:localhost:27017 dbs.melt.kyutech.ac.jp &
+	ssh -fN -L 27017:localhost:27017 hkim@dbs.melt.kyutech.ac.jp &
 
 clean:
 	${RM} seats
