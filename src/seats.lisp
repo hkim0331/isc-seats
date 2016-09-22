@@ -3,7 +3,7 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
-(defvar *version* "0.5.5")
+(defvar *version* "0.6")
 
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
@@ -21,8 +21,8 @@
   "(partition '(1 2 3 4)) => ((1 2) (2 3) (3 4))"
   (apply #'mapcar #'list (list xs (cdr xs))))
 
-;; FIXME, これではもっとも短いリストの長さを尊重する。
-;; nil で埋めることはしない。まずいか？
+;; FIXME, このバージョンはもっとも短いリストの長さを尊重する。
+;; まずい？ 長いリストを尊重し、nil で埋めるか？
 (defun transpose (list-of-list)
   "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
   (apply #'mapcar #'list list-of-list))
@@ -37,19 +37,12 @@
      (:html
       :lang "ja"
       (:head
-       (:meta
-        :charset "utf-8")
-       (:meta
-        :http-equiv "X-UA-Compatible"
-        :content "IE=edge")
-       (:meta
-        :name "viewport"
+       (:meta :charset "utf-8")
+       (:meta :http-equiv "X-UA-Compatible" :content "IE=edge")
+       (:meta :name "viewport"
         :content "width=device-width, initial-scale=1.0")
-       (:link
-        :rel "stylesheet"
-        :href "/seats.css")
-       (:link
-        :rel "stylesheet"
+       (:link :rel "stylesheet" :href "/seats.css")
+       (:link :rel "stylesheet"
         :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
        (:title ,title))
       (:body
@@ -58,8 +51,7 @@
         (:hr)
         (:span (format t "programmed by hkimura, ~a." *version*)))))))
 
-
-(defmacro radios (name values)
+(defmacro radio-buttons (name values)
   `(dolist (val ,values)
      (htm (:input :type "radio" :name ,name :value val (str val)))))
 
@@ -68,96 +60,77 @@
       (:title "Seat:index")
     (:h3 "Select Class")
     (:form
-     :method "post" :action "/check"
+     :method "post" :action "/show"
      (:table
       :id "selector"
-      (:tr
-       (:th "year")
-       (:td (radios "year" '(2016 2017))))
-      (:tr
-       (:th "term")
-       (:td (radios "term" '("q1" "q2" "q3" "q4"))))
-      (:tr
-       (:th "wday")
-       (:td (radios "wday" '("Mon" "Tue" "Wed" "Thu" "Fri"))))
-      (:tr
-       (:th "hour")
-       (:td (radios "hour" '(1 2 3 4 5))))
-      (:tr
-       (:th "room")
-       (:td (radios "room" '("c-2b" "c-2g"))))
-      (:tr
-       (:th "date")
-       (:td (:input :name "date" :placeholder "2016-09-14"))))
+      (:tr (:th "year") (:td (radio-buttons "year" '(2016 2017))))
+      (:tr (:th "term") (:td (radio-buttons "term" '("q1" "q2" "q3" "q4"))))
+      (:tr (:th "wday") (:td (radio-buttons "wday"
+                                            '("Mon" "Tue" "Wed" "Thu" "Fri"))))
+      (:tr (:th "hour") (:td (radio-buttons "hour" '(1 2 3 4 5))))
+      (:tr (:th "room") (:td (radio-buttons "room" '("c-2b" "c-2g"))))
+      (:tr (:th "date") (:td (:input :name "date" :placeholder "2016-09-14"))))
      (:br)
-     (:input :type "submit"))))
+     (:input :type "submit" :value "show"))))
 
-;; c-2b: 10.28.100.1-82, 200
-;; 各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
-;;
-;; c-2g:10.28.102.1-100
-;; 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101
-(defun make-seats (heads)
-  (transpose
-   (mapcar #'(lambda (xs) (apply #'range xs)) (partition heads))))
+(defun find-desks (room)
+"c-2b: 10.28.100.1-82, 200
+各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
+c-2g:10.28.102.1-100
+各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101"
+  (labels ((S (heads)
+             (transpose
+              (mapcar #'(lambda (xs) (apply #'range xs)) (partition heads)))))
+    (cond
+      ((string= room "c-2b") (S '(1 9 17 26 35 43 51 59 67 75 83)))
+      ((string= room "c-2g") (S '(1 13 25 37 49 61 73 87 101)))
+      (t (error (format nil "unknown room ~a" room))))))
 
-;; consider: 関数名。
-(defun tables (room)
+(defun find-students (col &key uhour date room)
+  (labels
+      ((ip-sid (col &key uhour date)
+         "((ip sid) ...) のリストを返す。"
+         (mapcar
+          #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
+          (docs (db.find col
+                         ($ ($ "uhour" uhour) ($ "date" date )) :limit 0)))))
+    (let ((ip
+           (cond
+             ((string= room "c-2b") "10.28.100")
+             ((string= room "c-2g") "10.28.102")
+             (t (error (format nil "unknown room ~a" room))))))
+      (remove-if-not
+       #'(lambda (e) (ppcre:scan ip (first e)))
+       (ip-sid col :uhour uhour :date date)))))
+
+(defun find-sid (n ip-sid-list)
+  "((ip sid) ...) のリストから ip の第 4 オクテットが n であるものの sid を返す。"
   (cond
-    ((string= room "c-2b") (make-seats '(1 9 17 26 35 43 51 59 67 75 83)))
-    ((string= room "c-2g") (make-seats '(1 13 25 37 49 61 73 87 101)))
-    (t (error (format nil "unknown room ~a" room)))))
+    ((null ip-sid-list) " ")
+    ((ppcre:scan (format nil "\\.~a$" n) (caar ip-sid-list))
+     (cadar ip-sid-list))
+    (t (find-sid n (cdr ip-sid-list)))))
 
-;; consider, seats の内部関数に？
-(defun seats-aux (col &key uhour date)
-  "((ip sid) ...) のリストを返す。
-  ip を端末番号に変えると ip でフィルタリングできなくなる。
-  ip のままで。"
-  (mapcar
-   #'(lambda (x) (list (get-element "ip" x) (get-element "sid" x)))
-   (docs (db.find col ($ ($ "uhour" uhour) ($ "date" date )) :limit 0))))
-
-(defun seats (col &key uhour date room)
-  ;; use hash?
-  (let ((ip
-         (cond
-           ((string= room "c-2b") "10.28.100")
-           ((string= room "c-2g") "10.28.102")
-           (t (error (format nil "unknown room ~a" room))))))
-    (remove-if-not
-     #'(lambda (e) (ppcre:scan ip (first e)))
-     (seats-aux col :uhour uhour :date date))))
-
-(defun name (n ip-name)
-  "((ip name) ...) のリストから ip の第 4 オクテットが n であるものの名前を返す。"
-  (cond
-    ((null ip-name) " ")
-    ((ppcre:scan (format nil "\\.~a$" n) (caar ip-name)) (cadar ip-name))
-    (t (name n (cdr ip-name)))))
-
-;;; FIXME:関数名を再考しよう。
-(define-easy-handler (check :uri "/check") (year term wday hour room date)
-  (let ((students (seats (format nil "~a_~a" term year)
+(define-easy-handler (show :uri "/show") (year term wday hour room date)
+  (let ((students (find-students (format nil "~a_~a" term year)
                      :uhour (format nil "~a~a" wday hour)
                      :date date
                      :room room))
-        (tables (tables room)))
+        (desks (find-desks room)))
     (standard-page
-        (:title "Sheet:check")
+        (:title "Sheet:show")
       (:h3 (format t "~a_~a ~a~a ~a ~a" year term wday hour room date))
       (:p "↑ FRONT")
       (:div
        (:table
         :id "seats"
-        (dolist (row tables)
+        (dolist (row desks)
           (htm (:tr
                 (dolist (n row)
                   (htm (:td :class "seat"
-                            (format t "~a" (name n students))))))))))
+                            (format t "~a" (find-sid n students))))))))))
       (:p (:a :href "/index" "back")))))
 
-;; server start/stop
-;; check working directory.
 (defun static-contents ()
   (push (create-static-file-dispatcher-and-handler
          "/seats.css" "static/seats.css") *dispatch-table*))
@@ -168,7 +141,7 @@
   (static-contents)
   (setf *http* (make-instance 'easy-acceptor :port port))
   (start *http*)
-  (format t "server started at port ~a." port))
+  (format t "start http://localhost:~a/index" port))
 
 (defun stop-server ()
   (stop *http*))
