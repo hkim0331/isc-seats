@@ -37,6 +37,11 @@ ccl64 をやめ、sbcl に切り替えると動作するようになる。
     リモートで起動した mongod の ipv4 ポートを転送し、
     それにつなぐとccl/cl-mongoはエラーにならない。
 
+## Installation
+
+static/ は sb-ext:save-lisp-and-die では持ち回られない。
+サーバにコピーすること。
+
 ## Usage
 
 ```
@@ -49,10 +54,6 @@ SEATS> (start-server)
 $ firefox http://localhost:8080/index
 ```
 
-## Installation
-
-static/ は sb-ext:save-lisp-and-die では持ち回られない。
-サーバにコピーすること。
 
 ## Author
 
