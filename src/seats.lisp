@@ -5,6 +5,9 @@
 
 (defvar *version* "0.7")
 
+;; in production, use "ucome".
+(cl-mongo:db.use "ucome")
+
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
 (range 1 4) => (1 2 3)
@@ -21,13 +24,11 @@
   "(partition '(1 2 3 4)) => ((1 2) (2 3) (3 4))"
   (apply #'mapcar #'list (list xs (cdr xs))))
 
-;; FIXME, このバージョンはもっとも短いリストの長さを尊重する。
-;; まずい？ 長いリストを尊重し、nil で埋めるか？
+;; FIXME, このバージョンはもっとも短いリスト（席が少ない列）を尊重してしまう。
+;; 長いリストを尊重し、nil で埋めた方がよい。
 (defun transpose (list-of-list)
   "(transpose '((1 2 3) (a b c)) => ((1 a) (2 b) (3 c))"
   (apply #'mapcar #'list list-of-list))
-
-(cl-mongo:db.use "test")
 
 (setf (html-mode) :html5)
 
