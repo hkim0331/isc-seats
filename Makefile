@@ -15,13 +15,6 @@ clean:
 	${RM} ./seats
 	find ./ -name \*.bak -exec rm {} \;
 
-# scripts for test
-port-forward-mongodb:
-	ssh -fN -L 27017:localhost:27017 hkim@dbs.melt.kyutech.ac.jp &
-
-stop-port-forward:
-	kill `ps ax | grep '[s]sh -fN -L 27017' | awk '{print $$1}'`
-
-start: port-forward-mongodb
-	./seats
+isc:
+	install -m 0700 src/seats-isc.sh ${HOME}/bin/seats-start
 

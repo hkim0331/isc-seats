@@ -39,8 +39,12 @@ ccl64 をやめ、sbcl に切り替えると動作するようになる。
 
 ## Installation
 
-static/ は sb-ext:save-lisp-and-die では持ち回られない。
+* static/ は sb-ext:save-lisp-and-die では持ち回られない。
 サーバにコピーすること。
+
+* localhost:27017 の mongodb と通信しようとする。
+  localhost に mongodb を準備できない時はポートフォワードでつなげ。
+  (上記 BUG 参照)
 
 ## Usage
 
@@ -53,7 +57,6 @@ SEATS> (start-server)
 ```
 $ firefox http://localhost:8080/index
 ```
-
 
 ## Author
 
