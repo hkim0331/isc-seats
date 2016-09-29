@@ -3,10 +3,10 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
-(defvar *version* "0.7")
+(defvar *version* "0.7.1")
 
-;; in production, use "ucome".
-(cl-mongo:db.use "test")
+;; production
+(cl-mongo:db.use "ucome")
 
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
