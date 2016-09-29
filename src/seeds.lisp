@@ -9,11 +9,11 @@
 
 (defparameter +c-2b+
   (apply #'vector
-         (mapcar (lambda (n) (format nil "10.28.100.~a" n)) (range 100))))
+         (mapcar (lambda (n) (format nil "10.27.100.~a" n)) (range 100))))
 
 (defparameter +c-2g+
   (apply #'vector
-         (mapcar (lambda (n) (format nil "10.28.102.~a" n)) (range 100))))
+         (mapcar (lambda (n) (format nil "10.27.102.~a" n)) (range 100))))
 
 (defun choose (v)
   (elt v (random (length v))))
@@ -39,4 +39,3 @@
   (dotimes (i n)
     (seed +c-2b+)
     (seed +c-2g+)))
-

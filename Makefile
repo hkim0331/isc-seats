@@ -5,7 +5,7 @@ all: seats
 
 seats:
 	sbcl \
-		--eval "(ql:quickload '(seats hunchentoot cl-who cl-mongo))" \
+		--eval "(ql:quickload :seats)" \
 		--eval "(in-package :seats)" \
 		--eval "(sb-ext:save-lisp-and-die \"seats\" :executable t :toplevel 'main)"
 	@echo saved executable binary as 'seats'.

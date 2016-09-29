@@ -6,7 +6,7 @@
 (defvar *version* "0.7")
 
 ;; in production, use "ucome".
-(cl-mongo:db.use "ucome")
+(cl-mongo:db.use "test")
 
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
@@ -75,9 +75,9 @@
      (:input :type "submit" :value "show"))))
 
 (defun find-desks (room)
-  "c-2b: 10.28.100.1-82, 200
+  "c-2b: 10.27.100.1-82, 200
 各列の先頭:    1, 9, 17, 26, 35, 43, 51, 59, 67, 75, 83
-c-2g:10.28.102.1-100
+c-2g:10.27.102.1-100
 各列の先頭:   1, 13, 25, 37, 49, 61, 73, 87, 101"
   (labels ((S (heads)
              (transpose
@@ -97,8 +97,8 @@ c-2g:10.28.102.1-100
                          ($ ($ "uhour" uhour) ($ "date" date )) :limit 0)))))
     (let ((ip
            (cond
-             ((string= room "c-2b") "10.28.100")
-             ((string= room "c-2g") "10.28.102")
+             ((string= room "c-2b") "10.27.100")
+             ((string= room "c-2g") "10.27.102")
              (t (error (format nil "unknown room ~a" room))))))
       (remove-if-not
        #'(lambda (e) (ppcre:scan ip (first e)))
