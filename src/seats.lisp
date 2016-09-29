@@ -3,7 +3,7 @@
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
 (in-package :seats)
 
-(defvar *version* "0.5.5")
+(defvar *version* "0.7.1")
 
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
