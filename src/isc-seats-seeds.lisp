@@ -1,4 +1,4 @@
-(in-package :seats)
+(in-package :isc-seats)
 
 (defparameter +year+ #(2016 2017))
 (defparameter +term+ #("q3" "q4"))
@@ -34,7 +34,7 @@
         ($ "date" date)
         ($ "ip" ip)))))
 
-(defun seeds (n)
+(defun isc-seats-seeds (n)
   (db.use "test")
   (dotimes (i n)
     (seed +c-2b+)

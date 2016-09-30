@@ -1,7 +1,7 @@
 (in-package :cl-user)
-(defpackage seats
+(defpackage isc-seats
   (:use :cl :cl-who :cl-mongo :cl-ppcre :hunchentoot))
-(in-package :seats)
+(in-package :isc-seats)
 
 (defvar *version* "0.7.1")
 
@@ -42,7 +42,7 @@
        (:meta :http-equiv "X-UA-Compatible" :content "IE=edge")
        (:meta :name "viewport"
         :content "width=device-width, initial-scale=1.0")
-       (:link :rel "stylesheet" :href "/seats.css")
+       (:link :rel "stylesheet" :href "/isc-seats.css")
        (:link :rel "stylesheet"
         :href "//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
        (:title ,title))
@@ -124,7 +124,7 @@ c-2g:10.27.102.1-100
       (:p "↑ FRONT")
       (:div
        (:table
-        :id "seats"
+        :id "isc-seats"
         (dolist (row desks)
           (htm (:tr
                 (dolist (n row)
@@ -134,11 +134,11 @@ c-2g:10.27.102.1-100
 
 (defun static-contents ()
   (push (create-static-file-dispatcher-and-handler
-         "/seats.css" "static/seats.css") *dispatch-table*))
+         "/isc-seats.css" "static/isc-seats.css") *dispatch-table*))
 
 (defvar *http*)
 
-(defun start-server (&optional (port 8080))
+(defun start-server (&optional (port 8082))
   (static-contents)
   (setf *http* (make-instance 'easy-acceptor :port port))
   (start *http*)
@@ -147,6 +147,7 @@ c-2g:10.27.102.1-100
 (defun stop-server ()
   (stop *http*))
 
+;; no use. chosse run on REPL.
 (defun main ()
-  (start-server 8081)
+  (start-server)
   (loop (sleep 60)))

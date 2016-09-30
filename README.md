@@ -1,8 +1,8 @@
-# Seats
+# isc-seats
 
 ISC: C-2B/C-2G の着席状況をブラウザ上に表示。
 
-4年生青木に開発のようすを見せる目的もかね、seats する。
+4年生青木に開発のようすを見せる目的もかね、isc-seats する。
 
 端末にssh しまくってログインしているユーザをかき集めるスクリプトを過去に書いたが、
 情報センターの「利便性よりもセキュリティ？を高める」くだらないポリシーのため、
@@ -41,8 +41,8 @@ seeds はダミーデータ準備スクリプト。
 ## Usage
 
 ```
-isc$ ${HOME}/bin/seats-start &
-isc$ firefox http://localhost:8080/index &
+isc$ ${HOME}/bin/isc-seats-start &
+isc$ firefox http://localhost:8082/index &
 ```
 
 ## Author

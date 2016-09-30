@@ -1,5 +1,5 @@
 # seats requires mongodb works at 127.0.0.1:27017
-# when no mongodb on localhost, port forward by 'make mongo'.
+# when no mongodb on localhost, use port forward.
 
 all: seats
 

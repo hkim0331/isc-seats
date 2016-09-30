@@ -1,21 +1,21 @@
 #|
-  This file is a part of seats project.
+  This file is a part of isc-seats project.
 |#
 
 (in-package :cl-user)
-(defpackage seats-test-asd
+(defpackage isc-seats-test-asd
   (:use :cl :asdf))
-(in-package :seats-test-asd)
+(in-package :isc-seats-test-asd)
 
-(defsystem seats-test
+(defsystem isc-seats-test
   :author ""
   :license ""
-  :depends-on (:seats
+  :depends-on (:isc-seats
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "seats"))))
-  :description "Test system for seats"
+                ((:test-file "isc-seats"))))
+  :description "Test system for isc-seats"
 
   :defsystem-depends-on (:prove-asdf)
   :perform (test-op :after (op c)
