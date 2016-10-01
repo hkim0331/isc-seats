@@ -147,7 +147,6 @@ c-2g:10.27.102.1-100
 (defun stop-server ()
   (stop *http*))
 
-;; no use. chosse run on REPL.
 (defun main ()
-  (start-server)
+  (start-server 20168)
   (loop (sleep 60)))

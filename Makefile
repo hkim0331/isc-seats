@@ -11,6 +11,17 @@ seats:
 	@echo saved executable binary as 'seats'.
 	@echo when install, 'static' folder must exist beside 'seats'.
 
+start: seats
+	nohup ./seats &
+
+stop:
+	pkill seats
+
+restart:
+	make stop
+	make clean
+	make start
+
 clean:
 	${RM} ./seats
 	find ./ -name \*.bak -exec rm {} \;
