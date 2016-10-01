@@ -8,14 +8,14 @@ isc-seats:
 		--eval "(ql:quickload :isc-seats)" \
 		--eval "(in-package :isc-seats)" \
 		--eval "(sb-ext:save-lisp-and-die \"isc-seats\" :executable t :toplevel 'main)"
-	@echo saved executable binary as 'seats'.
-	@echo when install, 'static' folder must exist beside 'seats'.
 
 start: isc-seats
+	@echo check the location of static folder.
 	nohup ./isc-seats &
 
 stop:
 	pkill isc-seats
+	mv nohup.out nohup.out.`date +%F_%T`
 
 restart:
 	make stop
