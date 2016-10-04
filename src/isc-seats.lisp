@@ -142,7 +142,7 @@ c-2g:10.27.102.1-100
   (static-contents)
   (setf *http* (make-instance 'easy-acceptor :port port))
   (start *http*)
-  (format t "start http://localhost:~a/index" port))
+  (format t "isc-seats start at http://localhost:~a/index" port))
 
 (defun stop-server ()
   (stop *http*))
