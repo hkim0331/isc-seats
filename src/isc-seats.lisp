@@ -5,9 +5,6 @@
 
 (defvar *version* "0.7.1")
 
-;; production
-(cl-mongo:db.use "ucome")
-
 (defun range (from &optional to step)
   "(range 4) => (0 1 2 3)
 (range 1 4) => (1 2 3)
@@ -139,6 +136,8 @@ c-2g:10.27.102.1-100
 (defvar *http*)
 
 (defun start-server (&optional (port 8082))
+  ;; production
+  (cl-mongo:db.use "ucome")
   (static-contents)
   (setf *http* (make-instance 'easy-acceptor :port port))
   (start *http*)
